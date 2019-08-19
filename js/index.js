@@ -15,9 +15,9 @@ window.addEventListener("load", () => {
 	
 	const executeFromStdin = () => {
 		try {
-			statusEl.textContent = "Working...\n";
+			statusEl.textContent = "";
 			statusEl.className = "";
-			scl.execute(stdin.value);
+			scl.execute(stdin.value, (...args) => args.forEach((arg) => statusEl.textContent += arg));
 		} catch (e) {
 			statusEl.textContent += e.message && e.message.join ? e.message.join("\n") : e.stack;
 			statusEl.className = "error";
@@ -25,7 +25,8 @@ window.addEventListener("load", () => {
 		}
 
 		// If we succeeded, set the status bar state to success.
-		statusEl.textContent += "Code ran successfully\n";
+		const exitCode = 0;
+		statusEl.textContent += "Program exited with code " + exitCode;
 		statusEl.className = "success";
 	};
 	

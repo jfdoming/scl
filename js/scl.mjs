@@ -1,8 +1,10 @@
 import tokenize from "/js/tokenize.mjs";
 import parse from "/js/parse.mjs";
+import simplify from "/js/simplify.mjs";
+import execute from "/js/execute.mjs";
 
 export const scl = {
-	execute: (input) => {
+	execute: (input, stdout) => {
 		console.log("Executing...");
 		let tokens;
 		try {
@@ -25,7 +27,10 @@ export const scl = {
 				console.error(e);
 			}
 		}
-		const tree = parse(tokens);
+
+		const tree = simplify(parse(tokens));
+		console.log(tree);
+		execute(tree, stdout);
 	},
 };
 

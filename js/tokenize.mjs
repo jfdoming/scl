@@ -1,10 +1,12 @@
 const tokenList = {
+	COMMENT: "//.*$",
 	NUMBER: "\\d+(?:\\.\\d*)?|\\d*\\.\\d+(?=$|[^0-9.])",
 	STRING: "\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'",
 	PLUS: "\\+",
 	MINUS: "-",
 	MULTIPLY: "\\*(?!\\*)",
 	DIVIDE: "/",
+	COMMA: ",",
 	POWER: "\\*{2}|\\^",
 	OPEN_PARENTHESIS: "\\(",
 	CLOSE_PARENTHESIS: "\\)",
@@ -19,7 +21,13 @@ const TOKENS = MAP.map((entry) => entry[0]);
 TOKENS.push("PROGRAM_END"); // used to signify the end of a program
 export {TOKENS};
 
-export const tokenize = (input) => {
+
+const escapes = [
+	[/\\n/g, "\n"],
+	[/\\t/g, "\t"],
+];
+
+export const tokenize = (input, quiet = true) => {
 	if (!input) {
 		return;
 	}
@@ -36,7 +44,9 @@ export const tokenize = (input) => {
 			// Check if the current token type matches.
 			const match = new RegExp("^" + entry[1]).exec(stream);
 			if (match && match.index == 0) {
-				console.log(match[0] + " is a " + entry[0]);
+				if (!quiet) {
+					console.log(match[0] + " is a " + entry[0]);
+				}
 				
 				if (match[0].includes("\n")) {
 					++lineNumber;
@@ -50,7 +60,14 @@ export const tokenize = (input) => {
 		
 		if (tokenMatch) {
 			stream = stream.substring(tokenMatch[1].length);
-			tokens.push(tokenMatch);
+			if (tokenMatch[0] != "WHITESPACE") {
+				if (tokenMatch[0] == "STRING") {
+					for (const type of escapes) {
+						tokenMatch[1] = tokenMatch[1].replace(type[0], type[1]);
+					}
+				}
+				tokens.push(tokenMatch);
+			}
 		} else {
 			// No matching token found. We don't know what this character is!
 			const line = stream.split("\n|\r|\r\n")[0];
