@@ -59,7 +59,7 @@ export const parse = (tokens, quiet = true) => {
 		console.log("No tokens provided.");
 		return {};
 	}
-	const result = matchesRule(tokens, "PROGRAM", quiet)[0];
+	const [result] = matchesRule(tokens, "PROGRAM", quiet);
 	if (!result) {
 		throw {
 			source: "parser",
